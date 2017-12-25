@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Simple LocalStorage-powered CRUD App</title>
+        <meta name="viewport" content="width=device-width" />
+        <script type="text/javascript" src="phonegap.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Simple LocalStorage-powered CRUD:</h1>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Specialization</th>
+                  <th scope="col">Age</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentDataWrapper">
+              </tbody>
+            </table>
+            <hr/>
+            <!-- from https://getbootstrap.com/docs/4.0/components/forms/ -->
+            <form id="addOrEditRecordForm" action="#" onsubmit="saveRecord(); return false;">
+              <legend>Add new record</legend>
+              <input type="hidden" id="currentRecordIndex" />
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter Name" required="required">
+              </div>
+              <div class="form-group">
+                <label for="specialization">Specialization</label>
+                <input type="text" class="form-control" id="specialization" placeholder="Enter Specialization" required="required">
+              </div>
+              <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" class="form-control" id="age" placeholder="Enter Age" required="required">
+              </div>
+              <button type="submit" class="btn btn-primary">Save</button>
+              <button type="reset" class="btn btn-default">Cancel</button>
+            </form>
+        </div>
+        <script type="text/javascript" src="js/main.js"></script>
+    </body>
+</html>
