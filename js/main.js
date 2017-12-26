@@ -112,9 +112,16 @@
             });
         }
     }
+    function clearSearch() {
+        document.getElementById('searchName').value = '';
+        document.getElementById('searchSpecialization').value = '';
+        document.getElementById('searchAge').value = '';
+        displayRecords();
+    }
     displayRecords();
     window.saveRecord = saveRecord;
     window.editRecord = editRecord;
     window.deleteRecord = deleteRecord;
     window.searchRecords = displayRecords;
+    window.clearSearch = clearSearch;
 })();

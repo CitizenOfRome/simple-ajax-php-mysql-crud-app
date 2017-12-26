@@ -24,7 +24,10 @@
                   <th scope="col"><input type="text" id="searchName"></th>
                   <th scope="col"><input type="text" id="searchSpecialization"></th>
                   <th scope="col"><input type="text" id="searchAge"></th>
-                  <th scope="col"><button type="button" class="btn btn-default" onclick="searchRecords(); return false;">Search</button></th>
+                  <th scope="col">
+                    <button type="button" class="btn btn-default" onclick="searchRecords(); return false;">Search</button>
+                    <button type="button" class="btn btn-default" onclick="clearSearch(); return false;">Clear</button>
+                  </th>
                 </tr>
               </thead>
               <tbody id="studentDataWrapper">
