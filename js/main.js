@@ -4,13 +4,13 @@
     function getExistingRecords() {
         var existingRecords = localStorage.getItem('students');
         if(!existingRecords) {
-            existingRecords = [];
+            existingRecords = {};
         } else {
             try {
                 existingRecords = JSON.parse(existingRecords);
             } catch(err) {
                 console.error('An error occured in parsing existing records', err);
-                existingRecords = [];
+                existingRecords = {};
             }
         }
         return existingRecords;
@@ -38,57 +38,83 @@
     // 2. Display Existing data - Read / Display
     function displayRecords() {
         // 1. Getting the student data
-        fetch(new Request(BASE_URL + '/getRecords.php'), {
+        var setupRecords = function(result) {
+            var existingRecords = JSON.parse(result),
+                htmlMarkup = '',
+                i = 0;
+            // 2. Loop over the student data and generate HTML
+            for(var key in existingRecords) {
+                if(!existingRecords.hasOwnProperty(key)) {
+                    continue;
+                }
+                var student = existingRecords[key];
+                console.log('student', student);
+                htmlMarkup += '<tr>\
+                  <th scope="row" data-name="id" data-value="' + student.id + '">' + student.id + '</th>\
+                  <td data-name="name" data-value="' + student.name + '">' + student.name + '</td>\
+                  <td data-name="specialization" data-value="' + student.specialization + '">' + student.specialization + '</td>\
+                  <td data-name="age" data-value="' + student.age + '">' + student.age + '</td>\
+                  <td>\
+                    <button type="button" class="btn btn-primary" onclick="editRecord('+i+')">Edit</button>\
+                    <button type="button" class="btn btn-danger" onclick="deleteRecord('+student.id+')">Delete</button>\
+                  </td>\
+                </tr>';
+                i++;
+            }
+            // 3. Add student data into the HTML dynamically
+            document.getElementById('studentDataWrapper').innerHTML = htmlMarkup;
+        };
+        var searchName = document.getElementById('searchName').value,
+            searchSpecialization = document.getElementById('searchSpecialization').value,
+            searchAge = document.getElementById('searchAge').value;
+        fetch(new Request(BASE_URL + '/getRecords.php?searchName='+searchName+'&searchSpecialization='+searchSpecialization+'&searchAge='+searchAge), {
             method: "GET"
         }).then(function(response) {
             console.log('Done fetch', response);
             return response.text().then(function(result) {
-                var existingRecords = JSON.parse(result),
-                    htmlMarkup = '';
-                // 2. Loop over the student data and generate HTML
-                for(var key in existingRecords) {
-                    if(!existingRecords.hasOwnProperty(key)) {
-                        continue;
-                    }
-                    var student = existingRecords[key];
-                    console.log('student', student);
-                    htmlMarkup += '<tr>\
-                      <th scope="row">' + student.id + '</th>\
-                      <td>' + student.name + '</td>\
-                      <td>' + student.specialization + '</td>\
-                      <td>' + student.age + '</td>\
-                      <td>\
-                        <button type="button" class="btn btn-primary" onclick="editRecord('+student.id+')">Edit</button>\
-                        <button type="button" class="btn btn-danger" onclick="deleteRecord('+student.id+')">Delete</button>\
-                      </td>\
-                    </tr>';
-                }
-                // 3. Add student data into the HTML dynamically
-                document.getElementById('studentDataWrapper').innerHTML = htmlMarkup;
+                localStorage.setItem('students', result);
+                setupRecords(result);
             });
+        }).catch(function() {
+            console.warn('Failed to get response');
+            setupRecords(localStorage.getItem('students') || '{}');
         });
     }
     // 3. Allow editing data - Update
     function editRecord(index) {
         // 1. Getting the data from localStorage and populating the form
-        var existingRecords = getExistingRecords(),
-            currentRecord = existingRecords[index];
+        var rows = document.getElementById('studentDataWrapper').children,
+            cols = rows[index].children,
+            currentRecord = {};
+        for(var i = 0; i < cols.length; i++) {
+            var name = cols[i].getAttribute('data-name');
+            if(name) {
+                currentRecord[name] = cols[i].getAttribute('data-value');
+            }
+        }
         console.log('editRecord', index, currentRecord);
         document.getElementById('name').value = currentRecord.name;
         document.getElementById('specialization').value = currentRecord.specialization;
         document.getElementById('age').value = currentRecord.age;
         // 2. Save the updated data at the correct place
-        document.getElementById('currentRecordIndex').value = index;
+        document.getElementById('currentRecordIndex').value = currentRecord.id;
     }
     // 4. Allow deleting data - Deletion
-    function deleteRecord(index) {
-        var existingRecords = getExistingRecords();
-        existingRecords.splice(index, 1);
-        localStorage.setItem('students', JSON.stringify(existingRecords));
-        displayRecords();
+    function deleteRecord(id) {
+        if(confirm('Are you sure they want to delete this record?')) {
+            fetch(new Request(BASE_URL + '/deleteRecord.php'), {
+                method: "POST",
+                body: JSON.stringify({
+                    id: id
+                })
+            }).then(function () {
+                displayRecords();
+            });
+        }
     }
     displayRecords();
     window.saveRecord = saveRecord;
     window.editRecord = editRecord;
     window.deleteRecord = deleteRecord;
+    window.searchRecords = displayRecords;
 })();
