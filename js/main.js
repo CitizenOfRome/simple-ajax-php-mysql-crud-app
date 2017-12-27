@@ -1,6 +1,7 @@
 (function() {
     'use strict';
-    var BASE_URL = 'http://192.168.0.110/cross-platform-app-course-december-2017/simple-ajax-php-mysql-crud-backend';
+    var BASE_URL = 'http://192.168.0.110/cross-platform-app-course-december-2017/simple-ajax-php-mysql-crud-backend',
+        currentPage = 1;
     function getExistingRecords() {
         var existingRecords = localStorage.getItem('students');
         if(!existingRecords) {
@@ -39,7 +40,9 @@
     function displayRecords() {
         // 1. Getting the student data
         var setupRecords = function(result) {
-            var existingRecords = JSON.parse(result),
+            var json = JSON.parse(result),
+                existingRecords = json.data,
+                pagesCount = json.pagesCount,
                 htmlMarkup = '',
                 i = 0;
             // 2. Loop over the student data and generate HTML
@@ -61,13 +64,23 @@
                 </tr>';
                 i++;
             }
+            if(i === 0) {
+                htmlMarkup += '<th colspan="5" class="text-center">No records found</th>'
+            }
             // 3. Add student data into the HTML dynamically
             document.getElementById('studentDataWrapper').innerHTML = htmlMarkup;
+
+            // Generate the pagination
+            var paginationMarkup = '';
+            for(var page=1; page<=pagesCount; page++) {
+                paginationMarkup += '<li class="page-item '+(currentPage === page ? 'active' : '')+'"><a class="page-link" href="#" onclick="changePage('+page+')">'+page+'</a></li>';
+            }
+            document.getElementById('paginationWrapper').innerHTML = paginationMarkup;
         };
         var searchName = document.getElementById('searchName').value,
             searchSpecialization = document.getElementById('searchSpecialization').value,
             searchAge = document.getElementById('searchAge').value;
-        fetch(new Request(BASE_URL + '/getRecords.php?searchName='+searchName+'&searchSpecialization='+searchSpecialization+'&searchAge='+searchAge), {
+        fetch(new Request(BASE_URL + '/getRecords.php?page='+currentPage+'&searchName='+searchName+'&searchSpecialization='+searchSpecialization+'&searchAge='+searchAge), {
             method: "GET"
         }).then(function(response) {
             console.log('Done fetch', response);
@@ -112,16 +125,25 @@
             });
         }
     }
+    function searchRecords() {
+        currentPage = 1;
+        displayRecords();
+    }
     function clearSearch() {
         document.getElementById('searchName').value = '';
         document.getElementById('searchSpecialization').value = '';
         document.getElementById('searchAge').value = '';
         displayRecords();
     }
+    function changePage(page) {
+        currentPage = page;
+        displayRecords();
+    }
     displayRecords();
     window.saveRecord = saveRecord;
     window.editRecord = editRecord;
     window.deleteRecord = deleteRecord;
-    window.searchRecords = displayRecords;
+    window.searchRecords = searchRecords;
     window.clearSearch = clearSearch;
+    window.changePage = changePage;
 })();
