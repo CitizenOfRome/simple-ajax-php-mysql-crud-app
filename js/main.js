@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    var BASE_URL = 'http://192.168.43.161/cross-platform-app-course-december-2017/simple-ajax-php-mysql-crud-backend';
+    var BASE_URL = 'http://192.168.0.110/cross-platform-app-course-december-2017/simple-ajax-php-mysql-crud-backend';
     function getExistingRecords() {
         var existingRecords = localStorage.getItem('students');
         if(!existingRecords) {
